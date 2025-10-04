@@ -4,6 +4,12 @@
 **Branch**: `001-x-sentiment-analysis` | **Date**: 2025-10-04 | **Spec**: `/specs/001-x-sentiment-analysis/spec.md`
 **Input**: Feature specification from `/specs/001-x-sentiment-analysis/spec.md`
 
+**Implementation Status (2025-10-04 EOD):**
+- ✅ 43/57 tasks completed (75%)
+- ⚠️ Implementation deviated from original plan (see spec.md for updated requirements)
+- ✅ Core system working: community collection, sentiment analysis, weighting, API
+- 📝 This plan reflects original design; see root docs for as-built documentation
+
 ## Execution Flow (/plan command scope)
 ```
 1. Load feature spec from Input path
@@ -31,7 +37,9 @@
 - Phase 3-4: Implementation execution (manual or via tools)
 
 ## Summary
-Build a daily batch sentiment analysis system for X (Twitter) focusing on Bitcoin, MSTR, and Bitcoin treasuries. Classify posts as Bullish/Bearish/Neutral, weight by visibility, influence, verification, and bot-likelihood, store raw and aggregate data, and expose historical trends via an API. Compare multiple algorithms (LLM and traditional) and design for future public web deployment.
+Build a sentiment analysis system for X (Twitter) focusing on the "Irresponsibly Long $MSTR" community. Collect top 5 posts 4x per week (Mon/Wed/Fri/Sun), classify as Bullish/Bearish/Neutral, weight by visibility, influence, verification, and bot-likelihood, store raw and aggregate data, and expose historical trends via API. Support multiple algorithms and design for future public web deployment.
+
+**Note:** Original plan was daily collection from hashtags; actual implementation is community-focused with 4x weekly schedule due to free tier constraints (100 tweets/month).
 
 ## Technical Context
 **Language/Version**: Python 3.10+  
@@ -41,8 +49,8 @@ Build a daily batch sentiment analysis system for X (Twitter) focusing on Bitcoi
 **Target Platform**: Local dev; deployable to Linux cloud (API + job runner)
 **Project Type**: web (backend API now; optional frontend later)  
 **Performance Goals**: Daily batch completes < 1 hour for 500 posts; API p95 < 2s for 30-day queries  
-**Constraints**: LLM budget $50/month; X API free tier 500 tweets/month; English-only v1.0  
-**Scale/Scope**: Initial dataset small (free tier). Architecture must scale to paid tiers.
+**Constraints**: LLM budget $0/month (MVP uses keyword-based); X API free tier 100 tweets/month read; English-only v1.0  
+**Scale/Scope**: Initial dataset small (free tier: ~85 tweets/month). Architecture must scale to paid tiers.
 
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
