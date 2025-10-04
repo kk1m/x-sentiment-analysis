@@ -4,6 +4,7 @@ Main FastAPI application entrypoint
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from backend.src.api.sentiment import router as sentiment_router
 
 app = FastAPI(
     title="X Sentiment Analysis API",
@@ -19,6 +20,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register routers
+app.include_router(sentiment_router)
 
 
 @app.get("/health")
