@@ -12,8 +12,7 @@ class OpenAIAnalyzer(SentimentAnalyzer):
     
     def __init__(self):
         self.api_key = os.getenv("OPENAI_API_KEY")
-        if not self.api_key:
-            raise ValueError("OPENAI_API_KEY not found in environment")
+        # API key is optional - will use keyword matching if not available
         
         self._algorithm_id = "openai-gpt4"
         self._algorithm_version = "gpt-4-turbo-2024"
