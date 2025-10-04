@@ -41,11 +41,10 @@ async def collect_community_posts():
     try:
         client = XAPIClient()
         
-        # Query: posts from community, with quality filter
+        # Query: simplified to just MSTR
         # NOTE: context: operator not available on free tier (400 error)
-        # Fallback: search for posts mentioning "Irresponsibly Long" + MSTR
-        # This captures posts from community members using their signature phrase
-        query = '"Irresponsibly Long $MSTR" min_retweets:2 -is:retweet lang:en'
+        # Simplified from "Irresponsibly Long MSTR" to just MSTR for broader results
+        query = 'MSTR -is:retweet lang:en'
         
         # Time window: last 72 hours (since last collection)
         # Mon->Wed = 48h, Wed->Fri = 48h, Fri->Sun = 48h, Sun->Mon = 48h
