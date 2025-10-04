@@ -3,7 +3,8 @@
 **Feature Branch**: `001-x-sentiment-analysis`  
 **Created**: 2025-10-04  
 **Status**: Draft  
-**Input**: User description: "X Sentiment Analysis - Daily batch sentiment analysis of Bitcoin, MSTR, and Bitcoin treasuries posts with multi-dimensional weighted scoring, bot detection, and historical trend tracking"
+**Input**: User description: "X Sentiment Analysis - Sentiment analysis of 'Irresponsibly Long $MSTR' community posts with multi-dimensional weighted scoring, bot detection, and historical trend tracking"  
+**Updated**: 2025-10-04 - Focused on MSTR community with Mon/Wed/Fri/Sun collection schedule
 
 ---
 
@@ -11,22 +12,22 @@
 
 ### Primary User Story
 
-As a cryptocurrency analyst, I want to monitor daily sentiment trends on Bitcoin, MSTR, and Bitcoin treasuries by analyzing X (Twitter) posts, so that I can understand market sentiment shifts over time and showcase this analysis publicly as a portfolio credential.
+As a cryptocurrency analyst, I want to monitor sentiment trends in the "Irresponsibly Long $MSTR" community by analyzing their X (Twitter) posts 4x per week, so that I can understand how this bullish MSTR investor community's sentiment shifts over time and showcase this analysis publicly as a portfolio credential.
 
-**Daily Workflow:**
-1. System automatically collects all relevant posts daily (end-of-day batch)
+**Weekly Workflow:**
+1. System collects top 5 posts from "Irresponsibly Long $MSTR" community on Mon/Wed/Fri/Sun
 2. Each post is analyzed for bullish/bearish/neutral sentiment
 3. Posts are weighted by visibility (likes, retweets), author influence (followers), verification status, and bot likelihood
 4. Daily aggregate sentiment score is calculated and stored
-5. User can view historical sentiment trends via web interface
+5. User can view historical sentiment trends via API
 6. User can compare sentiment results across different analysis algorithms
 
 ### Acceptance Scenarios
 
-#### Scenario 1: Daily Batch Collection
-1. **Given** it is end-of-day (e.g., 11:59 PM)
-   **When** the daily batch job runs
-   **Then** system collects all posts matching hashtags: #Bitcoin, #MSTR, #BitcoinTreasuries from the past 24 hours
+#### Scenario 1: Community Post Collection
+1. **Given** it is a collection day (Monday, Wednesday, Friday, or Sunday)
+   **When** the collection script runs
+   **Then** system collects top 5 posts from "Irresponsibly Long $MSTR" community (ID: 1761182781692850326) from the past 72 hours with min 2 retweets
    **And** stores complete post metadata (author, engagement metrics, content, timestamps)
 
 #### Scenario 2: Sentiment Classification
@@ -95,14 +96,14 @@ As a cryptocurrency analyst, I want to monitor daily sentiment trends on Bitcoin
 
 ### Functional Requirements - Data Collection
 
-- **FR-001**: System MUST collect posts from X API matching hashtags: #Bitcoin, #MSTR, #BitcoinTreasuries
-- **FR-002**: System MUST run daily batch collection at end-of-day (configurable time, default 11:59 PM local)
+- **FR-001**: System MUST collect posts from X API from specific community "Irresponsibly Long $MSTR" (ID: 1761182781692850326) using context: operator
+- **FR-002**: System MUST run collection 4x per week on Monday, Wednesday, Friday, Sunday (manual trigger within free tier constraints)
 - **FR-003**: System MUST capture complete post metadata: post ID, text, timestamp, author info, engagement metrics (likes, retweets, replies, quotes, bookmarks if available)
 - **FR-004**: System MUST capture author metadata: user ID, username, display name, follower count, verification status, account creation date
 - **FR-005**: System MUST handle X API rate limiting gracefully (pause, log, resume)
 - **FR-006**: System MUST track data lineage: API call timestamp, batch job ID, search query used
 - **FR-007**: System MUST validate API responses and reject corrupted/incomplete data
-- **FR-008**: System MUST work within X API Free Tier constraints (500 tweets/month initially)
+- **FR-008**: System MUST work within X API Free Tier constraints (100 tweets/month read limit, collecting 5 posts per run = ~85 tweets/month)
 
 ### Functional Requirements - Sentiment Analysis
 
@@ -134,7 +135,7 @@ As a cryptocurrency analyst, I want to monitor daily sentiment trends on Bitcoin
 
 ### Functional Requirements - Daily Aggregates
 
-- **FR-028**: System MUST calculate daily aggregate sentiment score per topic (Bitcoin, MSTR, Bitcoin treasuries)
+- **FR-028**: System MUST calculate aggregate sentiment score for MSTR community (focused on single topic)
 - **FR-029**: System MUST store daily metrics: total posts, bullish count, bearish count, neutral count, percentages
 - **FR-030**: System MUST store daily engagement aggregates: total likes, retweets, average engagement per post
 - **FR-031**: System MUST identify dominant sentiment for the day (Bullish/Bearish/Neutral)
@@ -237,22 +238,23 @@ Represents the formula and parameters used for weighted sentiment scoring.
 ## Dependencies & Assumptions
 
 ### External Dependencies
-- **X API v2**: Free tier access (500 tweets/month), requires API credentials
-- **LLM API**: OpenAI or Anthropic API for primary sentiment analysis, requires API key and budget ($50/month)
+- **X API v2**: Free tier access (100 tweets/month read limit), requires API credentials
+- **LLM API**: OpenAI or Anthropic API for primary sentiment analysis, requires API key and budget ($50/month) - Currently using keyword-based placeholder
 - **Local ML Models**: Hugging Face transformers for fallback sentiment analysis (FinBERT, crypto-specific models)
 
 ### Assumptions
-- X API Free Tier is sufficient for initial testing (500 posts/month = ~16 posts/day)
-- Upgrade to X API paid tier may be required for production scale
-- Hashtag search (#Bitcoin, #MSTR, #BitcoinTreasuries) captures relevant posts
+- X API Free Tier is sufficient for focused community tracking (100 tweets/month = 5 posts × 4 days/week × 4 weeks = ~80-85 tweets/month)
+- Upgrade to X API Basic tier ($100/month) required for larger scale (10,000 tweets/month)
+- Community search (context: operator) captures posts from "Irresponsibly Long $MSTR" community
 - English-only posts are sufficient for v1.0 (majority of crypto discussion)
-- Daily batch processing is acceptable (real-time not required)
+- Mon/Wed/Fri/Sun collection schedule is acceptable (real-time not required)
 - Bot detection heuristics can achieve >80% precision without ML model
-- LLM API provides superior sentiment accuracy compared to traditional ML for crypto-specific language
+- Keyword-based sentiment is acceptable for MVP, LLM upgrade provides better accuracy
 
 ### Constraints
-- Budget: $50/month for LLM API costs
-- X API: Free tier rate limits (500 tweets/month)
+- Budget: $0/month (free tier only for MVP)
+- X API: Free tier limits (100 tweets/month read, 500 tweets/month write)
+- Collection: 5 posts per run, 4x per week = ~85 tweets/month
 - Language: English only (v1.0)
 - Deployment: Local development initially, cloud deployment for public showcase
 

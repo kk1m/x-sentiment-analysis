@@ -29,6 +29,7 @@ vaderSentiment==3.3.2
 # Visualization
 matplotlib==3.8.2
 plotly==5.18.0
+streamlit==1.28.2
 
 # Configuration
 python-dotenv==1.0.0

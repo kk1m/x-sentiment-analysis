@@ -37,12 +37,34 @@ Monitor daily sentiment trends on cryptocurrency topics by analyzing X posts wit
 
 ## Getting Started
 
-1. Review the constitution: `.specify/memory/constitution.md`
-2. Use Windsurf slash commands to continue:
-   - `/specify` - Create detailed technical specification
-   - `/plan` - Generate implementation plan
-   - `/tasks` - Break down into actionable tasks
-   - `/implement` - Execute development
+### Quick Start
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Initialize database
+python -m backend.src.storage.init_db init
+
+# 3. Collect data (Mon/Wed/Fri/Sun)
+python collect_community_posts.py
+python analyze_posts.py
+python run_aggregator.py
+
+# 4. View dashboard
+streamlit run dashboard.py
+# Or use API: python -m uvicorn backend.src.main:app --reload
+```
+
+See [QUICKSTART.md](QUICKSTART.md) for detailed instructions.
+
+### Dashboard
+Launch the interactive Streamlit dashboard:
+```bash
+./run_dashboard.sh
+# Or: streamlit run dashboard.py
+```
+
+Visit: http://localhost:8501
 
 ## Scope (v1.0)
 

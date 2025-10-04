@@ -65,18 +65,17 @@ GET /2/communities/{community_id}
 **Per Collection:**
 ```python
 # Search tweets from community
-query = f"context:{community_id} -is:retweet lang:en"
+query = f"context:{community_id} min_retweets:2 -is:retweet lang:en"
+since = datetime.utcnow() - timedelta(hours=72)  # Last 72 hours
 max_results = 5
 
 # What this returns:
-# - Top 5 posts by X's "relevance" algorithm (engagement + recency + quality)
+# - Posts from "Irresponsibly Long $MSTR" community (context: operator)
+# - From last 72 hours (since last collection)
+# - At least 2 retweets (quality threshold)
 # - Original content only (no retweets)
 # - English language
-# - From "Irresponsibly Long $MSTR" community
-
-# Optional filters to add later if needed:
-# - min_retweets:2  (quality threshold)
-# - since:datetime  (time window)
+# - Top 5 by engagement within that time window
 ```
 
 **Monthly Usage:**

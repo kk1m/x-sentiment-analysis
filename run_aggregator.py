@@ -12,17 +12,24 @@ async def main():
     
     aggregator = DailyAggregator()
     
-    # Aggregate today's data
-    today = date.today()
+    # Aggregate yesterday's data (or specify date)
+    import sys
+    if len(sys.argv) > 1:
+        from datetime import datetime
+        target_date = datetime.strptime(sys.argv[1], "%Y-%m-%d").date()
+    else:
+        # Default to yesterday since posts are usually from previous day
+        from datetime import timedelta
+        target_date = date.today() - timedelta(days=1)
     
     aggregate = await aggregator.aggregate_daily_sentiment(
-        target_date=today,
+        target_date=target_date,
         topic="Bitcoin",
         algorithm="openai-gpt4"
     )
     
     if aggregate:
-        print(f"\n✅ Daily aggregate created for {today}")
+        print(f"\n✅ Daily aggregate created for {target_date}")
         print(f"   Topic: {aggregate.topic.value}")
         print(f"   Total posts: {aggregate.total_posts}")
         print(f"   Bullish: {aggregate.bullish_count} ({aggregate.bullish_percentage:.1f}%)")
@@ -32,7 +39,7 @@ async def main():
         print(f"   Dominant sentiment: {aggregate.dominant_sentiment.value}")
         print(f"\n📊 Now try: curl \"http://localhost:8000/sentiment/trends?topic=Bitcoin&days=1\"")
     else:
-        print(f"\n⚠️  No posts found for {today}")
+        print(f"\n⚠️  No posts found for {target_date}")
         print("   Run demo.py first to create sample data")
 
 
