@@ -18,7 +18,7 @@ Monitor daily sentiment trends on cryptocurrency topics by analyzing X posts wit
 ## Core Principles
 
 1. **Signal Quality Over Noise** - Bot detection is non-negotiable
-2. **Multi-Dimensional Weighted Analysis** - Visibility, influence, verification matter
+2. **Multi-Dimensional Weighted Analysis** - Visibility, influence, verification matter ([See detailed explanation](docs/WEIGHTING_EXPLAINED.md))
 3. **Algorithm Flexibility** - Support multiple sentiment models and compare results
 4. **Batch Processing & Historical Tracking** - Daily aggregation with trend visibility
 5. **Web-Ready Architecture** - Design for public deployment from day one
