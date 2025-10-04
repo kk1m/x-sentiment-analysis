@@ -7,37 +7,39 @@ This quickstart validates the MVP flow end-to-end locally.
 - X API credentials (Free tier OK)
 - Optional: OpenAI/Anthropic key for LLM
 
-## 2) Create env
+### 1. Install Dependencies
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -U pip
-pip install fastapi uvicorn[standard] pandas numpy pydantic sqlalchemy apscheduler httpx tweepy matplotlib plotly pytest pytest-mock
+pip install -r requirements.txt
 ```
 
-## 3) Configure secrets
-Create `.env` in repo root:
+### 2. Configure API Keys
+Create `.env` file:
 ```
-X_API_KEY=...
-OPENAI_API_KEY=...
-ANTHROPIC_API_KEY=...
+X_API_KEY=your_twitter_bearer_token
+OPENAI_API_KEY=optional  # Currently using keyword-based sentiment
 ```
 
-## 4) Run daily batch (dry run)
+### 3. Initialize Database
 ```bash
-bash scripts/run_daily_batch.sh --dry-run
+python -m backend.src.storage.init_db init
 ```
 
-## 5) Start API
+### 4. Collect Community Posts (Mon/Wed/Fri/Sun)
 ```bash
-uvicorn backend.src.main:app --reload
+python collect_community_posts.py  # Collects 5 posts from MSTR community
+python analyze_posts.py            # Analyzes sentiment + bot detection
+python run_aggregator.py           # Creates daily aggregate
 ```
 
-## 6) Validate
-- GET `/health` → 200
-- GET `/sentiment/trends?topic=Bitcoin&days=30` → JSON trend
-
-## 7) Tests
+### 5. View Results
 ```bash
-pytest -q
+python -m uvicorn backend.src.main:app --reload
+# Visit http://localhost:8000/docs
+curl "http://localhost:8000/sentiment/trends?topic=MSTR&days=7"
 ```
+
+## Full Documentation
+
+See `QUICKSTART.md` in project root for complete workflow and troubleshooting.
