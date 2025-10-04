@@ -1,7 +1,16 @@
 """
 Find Community Script
 Searches for "Irresponsibly Long $MSTR" community and saves the ID
-Run this ONCE to get the community ID
+
+NOTE: This script is OPTIONAL - we already have the hardcoded community ID.
+Community ID: 1761182781692850326 (already in community_config.json)
+
+Use this script only if:
+- You want to find other communities
+- You want to verify the community still exists
+- You want to see how community search works
+
+For normal operation, just use collect_community_posts.py directly.
 """
 import asyncio
 import httpx

@@ -4,7 +4,17 @@
 
 Run these commands in order to see the entire system work:
 
-### Step 1: Test Community Query (Optional)
+**Note:** Community ID is already hardcoded (1761182781692850326), so you can skip Step 1.
+
+### Step 1: Find Community (OPTIONAL - Already Done)
+```bash
+python find_community.py
+```
+**Purpose:** Search for community and save ID  
+**Status:** ✅ Already done - community_config.json exists  
+**Skip this:** Community ID is already hardcoded
+
+### Step 2: Test Community Query (Optional)
 ```bash
 python test_community_query.py
 ```
@@ -14,7 +24,7 @@ python test_community_query.py
 
 ---
 
-### Step 2: Collect Community Posts
+### Step 3: Collect Community Posts
 ```bash
 python collect_community_posts.py
 ```
@@ -39,7 +49,7 @@ python collect_community_posts.py
 
 ---
 
-### Step 3: Analyze Sentiment
+### Step 4: Analyze Sentiment
 ```bash
 python analyze_posts.py
 ```
@@ -61,7 +71,7 @@ python analyze_posts.py
 
 ---
 
-### Step 4: Create Daily Aggregate
+### Step 5: Create Daily Aggregate
 ```bash
 python run_aggregator.py
 ```
@@ -84,7 +94,7 @@ python run_aggregator.py
 
 ---
 
-### Step 5: View Results via API
+### Step 6: View Results via API
 ```bash
 # Start API server (if not running)
 python -m uvicorn backend.src.main:app --reload
