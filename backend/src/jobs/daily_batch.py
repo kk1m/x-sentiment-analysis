@@ -3,6 +3,7 @@ Daily Batch Job
 Orchestrates daily data collection from X API
 """
 import uuid
+from typing import List
 from datetime import datetime, timedelta
 from backend.src.services.post_collector import PostCollector
 from backend.src.storage.database import get_session
@@ -75,7 +76,3 @@ async def run_daily_batch(
         session.close()
         
         raise
-
-
-# Import for type hints
-from typing import List
