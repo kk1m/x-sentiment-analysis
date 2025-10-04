@@ -54,7 +54,13 @@ GET /2/communities/{community_id}
 
 ### Phase 2: Regular Collection
 
-**Frequency:** Every other day (15 times per month)
+**Frequency:** Mon/Wed/Fri/Sun (4 days per week)
+
+**Schedule:**
+- Monday: Start of week, market open
+- Wednesday: Mid-week activity
+- Friday: End of week, pre-weekend
+- Sunday: Weekend sentiment before Monday market
 
 **Per Collection:**
 ```python
@@ -70,9 +76,19 @@ max_results = 5  # Top 5 posts
 ```
 
 **Monthly Usage:**
-- 15 collections × 5 tweets = **75 tweets/month**
-- Buffer: 25 tweets for testing/adjustments
+- 4 collections/week × 4.3 weeks = ~17 collections/month
+- 17 collections × 5 tweets = **85 tweets/month**
+- Buffer: 15 tweets for testing/adjustments
 - Total: Under 100 tweet limit ✅
+
+**Example October Schedule:**
+```
+Week 1: Mon 7, Wed 9, Fri 11, Sun 13
+Week 2: Mon 14, Wed 16, Fri 18, Sun 20
+Week 3: Mon 21, Wed 23, Fri 25, Sun 27
+Week 4: Mon 28, Wed 30
+= 14 collections in October
+```
 
 ---
 
