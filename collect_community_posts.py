@@ -41,17 +41,26 @@ async def collect_community_posts():
     try:
         client = XAPIClient()
         
-        # Query: posts from this community, no retweets, English only
-        query = f"context:{community_id} -is:retweet lang:en"
+        # Query: posts from community, with quality filter
+        # NOTE: context: operator not available on free tier (400 error)
+        # Fallback: search for posts mentioning "Irresponsibly Long" + MSTR
+        # This captures posts from community members using their signature phrase
+        query = '"Irresponsibly Long" (MSTR OR MicroStrategy) min_retweets:2 -is:retweet lang:en'
+        
+        # Time window: last 72 hours (since last collection)
+        # Mon->Wed = 48h, Wed->Fri = 48h, Fri->Sun = 48h, Sun->Mon = 48h
+        # Using 72h as buffer
+        since = datetime.utcnow() - timedelta(hours=72)
         
         print(f"🔍 Query: {query}")
-        print(f"   Collecting top 5 posts...")
+        print(f"   Time window: Last 72 hours")
+        print(f"   Collecting top 5 posts by engagement...")
         print("")
         
         response = await client.search_recent(
             query=query,
             max_results=5,
-            since=None  # No time filter, let X's relevance sort handle it
+            since=since
         )
         
         posts_data = response.get("data", [])
