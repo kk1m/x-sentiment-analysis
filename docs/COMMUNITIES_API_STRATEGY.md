@@ -65,14 +65,18 @@ GET /2/communities/{community_id}
 **Per Collection:**
 ```python
 # Search tweets from community
-query = f"context:{community_id}"
-# Or: query = f"conversation_id:{community_id}"
-max_results = 5  # Top 5 posts
+query = f"context:{community_id} -is:retweet lang:en"
+max_results = 5
 
-# Filters to add:
-# - Sort by engagement
-# - English only
-# - No retweets
+# What this returns:
+# - Top 5 posts by X's "relevance" algorithm (engagement + recency + quality)
+# - Original content only (no retweets)
+# - English language
+# - From "Irresponsibly Long $MSTR" community
+
+# Optional filters to add later if needed:
+# - min_retweets:2  (quality threshold)
+# - since:datetime  (time window)
 ```
 
 **Monthly Usage:**
