@@ -5,13 +5,42 @@
 # Sentiment Analysis Configuration
 # =================================================================
 sentiment:
-  algorithm: "keyword"  # Options: keyword, openai, vader
+  algorithm: "openai"  # Options: keyword, openai, vader
   
-  # OpenAI GPT Configuration
+  # OpenAI/OpenRouter Configuration
   openai:
-    model: "gpt-4-turbo"
+    provider: "openrouter"
+    api_base_url: "https://openrouter.ai/api/v1"
+    model: "meta-llama/llama-3.1-8b-instruct"  # Cheapest option
     temperature: 0.3
-    max_tokens: 100
+    max_tokens: 200
+    timeout_seconds: 30
+    max_retries: 3
+    max_api_calls_per_run: 10  # Ultra safe limit
+    
+    system_prompt: |
+      You are a financial sentiment analyst specializing in cryptocurrency and stock markets.
+      
+      Analyze tweets about MicroStrategy (MSTR) and Bitcoin to determine investor sentiment.
+      
+      CLASSIFICATION RULES:
+      - Bullish: Positive outlook, buying signals, optimism, price increase expectations, accumulation mentions
+      - Bearish: Negative outlook, selling signals, pessimism, price decrease expectations, exit strategies
+      - Neutral: Factual information, balanced views, questions, or unclear sentiment
+      
+      IMPORTANT CONSIDERATIONS:
+      - Detect sarcasm and irony (often indicates opposite sentiment)
+      - Consider emoji context (🚀📈 = bullish, 📉💀 = bearish)
+      - Price targets and technical analysis indicate sentiment direction
+      - "HODL", "diamond hands", "to the moon" = bullish
+      - "Dump", "exit", "take profits" = bearish
+      
+      RESPONSE FORMAT (JSON only):
+      {
+        "sentiment": "Bullish|Bearish|Neutral",
+        "confidence": 0.0-1.0,
+        "reasoning": "brief 1-sentence explanation"
+      }
   
   # Keyword Matching Configuration
   keyword:
@@ -58,11 +87,44 @@ bot_detection:
     default_profile_pic_penalty: 0.3
     no_bio_penalty: 0.2
   
-  # OpenAI-based Detection
+  # OpenAI/OpenRouter-based Detection
   openai:
-    model: "gpt-4-turbo"
+    provider: "openrouter"
+    api_base_url: "https://openrouter.ai/api/v1"
+    model: "meta-llama/llama-3.1-8b-instruct"
     temperature: 0.1
-    max_tokens: 50
+    max_tokens: 150
+    timeout_seconds: 30
+    max_retries: 3
+    
+    system_prompt: |
+      You are a social media bot detection specialist.
+      
+      Analyze Twitter/X account characteristics to determine if an account is likely a bot.
+      
+      BOT INDICATORS (increase bot likelihood):
+      - Generic usernames (random numbers/letters)
+      - Very low or very high follower/following ratio
+      - New account with high activity
+      - Repetitive posting patterns
+      - Generic or missing bio
+      - Promotional/spam content
+      - Excessive hashtags or mentions
+      
+      HUMAN INDICATORS (decrease bot likelihood):
+      - Verified account
+      - Established account (>1 year old)
+      - Balanced follower/following ratio
+      - Personal bio with specific interests
+      - Varied content and engagement
+      - Conversational replies
+      
+      RESPONSE FORMAT (JSON only):
+      {
+        "is_bot": true|false,
+        "confidence": 0.0-1.0,
+        "reasoning": "brief 1-sentence explanation"
+      }
 
 # =================================================================
 # Data Collection Configuration

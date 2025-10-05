@@ -18,24 +18,6 @@ async def main():
     
     session = get_session()
     
-    # Get posts without sentiment scores
-    posts = session.query(Post).outerjoin(
-        Post.sentiment_scores
-    ).filter(
-        Post.sentiment_scores == None
-    ).limit(20).all()
-    
-    if not posts:
-        print("⚠️  No unanalyzed posts found")
-        print("   Run: python collect_small_batch.py")
-        return
-    
-    print(f"Found {len(posts)} posts to analyze")
-    print("")
-    
-    sentiment_service = SentimentService()
-    bot_detector = BotDetector()
-    
     # Get algorithms from config
     sentiment_algo = config.sentiment_algorithm
     bot_algo = config.bot_detection_algorithm
@@ -44,8 +26,43 @@ async def main():
     print(f"Using bot detection algorithm: {bot_algo}")
     print("")
     
-    for i, post in enumerate(posts, 1):
-        print(f"[{i}/{len(posts)}] Analyzing post {post.post_id[:10]}...")
+    # Get all posts and filter by algorithm
+    from backend.src.models.sentiment_score import SentimentScore
+    from backend.src.models.bot_signal import BotSignal
+    
+    all_posts = session.query(Post).all()
+    posts_to_analyze = []
+    
+    for post in all_posts:
+        # Check if this post already has sentiment from this algorithm
+        existing_sentiment = session.query(SentimentScore).filter_by(
+            post_id=post.post_id,
+            algorithm_id=sentiment_algo
+        ).first()
+        
+        if not existing_sentiment:
+            posts_to_analyze.append(post)
+    
+    if not posts_to_analyze:
+        print("⚠️  No posts need analysis with this algorithm")
+        print(f"   All posts already analyzed with '{sentiment_algo}'")
+        return
+    
+    print(f"Found {len(posts_to_analyze)} posts to analyze")
+    print("")
+    
+    # Safety limit
+    MAX_API_CALLS = config.sentiment_openai_config.get('max_api_calls_per_run', 10)
+    if len(posts_to_analyze) > MAX_API_CALLS:
+        print(f"⚠️  Limiting to {MAX_API_CALLS} posts (safety limit)")
+        posts_to_analyze = posts_to_analyze[:MAX_API_CALLS]
+        print("")
+    
+    sentiment_service = SentimentService()
+    bot_detector = BotDetector()
+    
+    for i, post in enumerate(posts_to_analyze, 1):
+        print(f"[{i}/{len(posts_to_analyze)}] Analyzing post {post.post_id[:10]}...")
         
         # Sentiment analysis (using config)
         score = await sentiment_service.classify_and_store(

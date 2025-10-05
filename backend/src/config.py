@@ -44,6 +44,11 @@ class Config:
         return self._config.get('sentiment', {}).get('openai', {})
     
     @property
+    def sentiment_system_prompt(self) -> str:
+        """Get sentiment analysis system prompt"""
+        return self._config.get('sentiment', {}).get('openai', {}).get('system_prompt', '')
+    
+    @property
     def sentiment_keyword_config(self) -> Dict[str, List[str]]:
         """Get keyword sentiment config"""
         return self._config.get('sentiment', {}).get('keyword', {})
@@ -67,6 +72,11 @@ class Config:
     def bot_detection_openai_config(self) -> Dict[str, Any]:
         """Get OpenAI bot detection config"""
         return self._config.get('bot_detection', {}).get('openai', {})
+    
+    @property
+    def bot_detection_system_prompt(self) -> str:
+        """Get bot detection system prompt"""
+        return self._config.get('bot_detection', {}).get('openai', {}).get('system_prompt', '')
     
     @property
     def collection_config(self) -> Dict[str, Any]:
