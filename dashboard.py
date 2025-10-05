@@ -127,8 +127,8 @@ st.markdown("""
 
 
 @st.cache_data(ttl=10)
-def load_data(days=90):
-    """Load data from database"""
+def load_data(days=90, algorithm="openai"):
+    """Load data from database filtered by algorithm"""
     session = get_session()
     
     try:
@@ -148,7 +148,7 @@ def load_data(days=90):
         ).outerjoin(
             Engagement, Post.post_id == Engagement.post_id
         ).outerjoin(
-            SentimentScore, Post.post_id == SentimentScore.post_id
+            SentimentScore, (Post.post_id == SentimentScore.post_id) & (SentimentScore.algorithm_id == algorithm)
         ).outerjoin(
             BotSignal, Post.post_id == BotSignal.post_id
         ).filter(
@@ -217,19 +217,38 @@ def main():
     st.sidebar.header("⚙️ Settings")
     st.sidebar.markdown("---")
     
+    # Algorithm selector
+    st.sidebar.markdown("### 🤖 Sentiment Algorithm")
+    algorithm = st.sidebar.selectbox(
+        "Select Algorithm:",
+        ["openai", "keyword", "vader"],
+        index=0,
+        help="Choose which sentiment analysis algorithm to display"
+    )
+    
+    # Comparison mode toggle
+    st.sidebar.markdown("---")
+    comparison_mode = st.sidebar.checkbox(
+        "📊 Show Algorithm Comparison",
+        value=False,
+        help="Compare all algorithms side-by-side"
+    )
+    
+    st.sidebar.markdown("---")
     if st.sidebar.button("🔄 Refresh Data", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
     
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 📊 Data Info")
+    st.sidebar.caption(f"Active Algorithm: {algorithm}")
     st.sidebar.caption("Collection: Mon/Wed/Fri/Sun")
-    st.sidebar.caption("Posts per collection: 5")
+    st.sidebar.caption("Posts per collection: 10")
     st.sidebar.caption("Bot threshold: 0.7")
     
-    # Load all data (90 days)
+    # Load all data (90 days) with selected algorithm
     with st.spinner("Loading data..."):
-        df, agg_df = load_data(days=90)
+        df, agg_df = load_data(days=90, algorithm=algorithm)
     
     if df.empty:
         st.warning("⚠️ No data available. Run `python collect_community_posts.py` to collect data!")
@@ -518,6 +537,93 @@ def main():
         st.info("💡 **Insight:** Compare human vs bot sentiment patterns. Bots typically show more extreme scores (closer to 0 or 100) while humans show more moderate, varied sentiment.")
     
     st.markdown("---")
+    
+    # Algorithm Comparison View
+    if comparison_mode:
+        st.header("🔬 Algorithm Comparison")
+        st.markdown("Compare how different algorithms analyze the same tweets")
+        
+        # Load data for all algorithms
+        session_comp = get_session()
+        start_date_comp = datetime.utcnow() - timedelta(days=90)
+        
+        # Get all posts with sentiment from all algorithms
+        comparison_data = {}
+        for algo in ["openai", "keyword", "vader"]:
+            algo_scores = session_comp.query(
+                Post.created_at,
+                SentimentScore.classification
+            ).join(
+                SentimentScore, (Post.post_id == SentimentScore.post_id) & (SentimentScore.algorithm_id == algo)
+            ).filter(
+                Post.created_at >= start_date_comp
+            ).all()
+            
+            if algo_scores:
+                df_algo = pd.DataFrame(algo_scores, columns=['created_at', 'sentiment'])
+                df_algo['date'] = pd.to_datetime(df_algo['created_at']).dt.date
+                df_algo['sentiment_numeric'] = df_algo['sentiment'].map({'Bullish': 1, 'Neutral': 0, 'Bearish': -1})
+                df_algo['fear_greed_score'] = (df_algo['sentiment_numeric'] + 1) * 50
+                daily_avg = df_algo.groupby('date')['fear_greed_score'].mean().reset_index()
+                comparison_data[algo] = daily_avg
+        
+        session_comp.close()
+        
+        # Create comparison chart
+        fig_comp = go.Figure()
+        
+        colors = {
+            'openai': '#3498db',
+            'keyword': '#e74c3c', 
+            'vader': '#2ecc71'
+        }
+        
+        for algo, data in comparison_data.items():
+            if not data.empty:
+                fig_comp.add_trace(go.Scatter(
+                    x=data['date'],
+                    y=data['fear_greed_score'],
+                    mode='lines+markers',
+                    name=f'{algo.upper()}',
+                    line=dict(color=colors.get(algo, '#ffffff'), width=2.5),
+                    marker=dict(size=7),
+                    hovertemplate=f'<b>%{{x}}</b><br>{algo}: %{{y:.0f}}<extra></extra>'
+                ))
+        
+        fig_comp.update_layout(
+            title=dict(
+                text="Algorithm Comparison: OpenAI vs Keyword vs VADER",
+                font=dict(size=24, color='#e0e0e0', family='Arial Black')
+            ),
+            xaxis_title="Date",
+            yaxis_title="Fear & Greed Index (0 = Fear, 100 = Greed)",
+            hovermode='x unified',
+            yaxis=dict(
+                range=[0, 100],
+                gridcolor='rgba(255, 255, 255, 0.1)',
+                tickvals=[0, 25, 50, 75, 100],
+                ticktext=['0<br>Fear', '25', '50<br>Neutral', '75', '100<br>Greed']
+            ),
+            xaxis=dict(gridcolor='rgba(255, 255, 255, 0.1)'),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1,
+                font=dict(size=12, color='#e0e0e0')
+            ),
+            height=500,
+            plot_bgcolor='rgba(0, 0, 0, 0.2)',
+            paper_bgcolor='rgba(0, 0, 0, 0)',
+            font=dict(color='#e0e0e0')
+        )
+        
+        st.plotly_chart(fig_comp, use_container_width=True)
+        
+        st.info("💡 **Insight:** Compare how different algorithms interpret the same tweets. Divergence indicates algorithmic bias or different interpretation methods.")
+        
+        st.markdown("---")
     
     # Top Posts (keep this - useful context)
     st.header("🔥 Top Posts Driving Sentiment")

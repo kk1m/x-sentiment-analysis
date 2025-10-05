@@ -5,7 +5,7 @@
 # Sentiment Analysis Configuration
 # =================================================================
 sentiment:
-  algorithm: "openai"  # Options: keyword, openai, vader
+  algorithm: "keyword"  # Options: keyword, openai, vader
   
   # OpenAI/OpenRouter Configuration
   openai:
