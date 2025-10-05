@@ -1,0 +1,105 @@
+# X Sentiment Analysis Configuration
+# Central configuration file for all application settings
+
+# =================================================================
+# Sentiment Analysis Configuration
+# =================================================================
+sentiment:
+  algorithm: "keyword"  # Options: keyword, openai, vader
+  
+  # OpenAI GPT Configuration
+  openai:
+    model: "gpt-4-turbo"
+    temperature: 0.3
+    max_tokens: 100
+  
+  # Keyword Matching Configuration
+  keyword:
+    bullish_keywords:
+      - "moon"
+      - "bullish"
+      - "buy"
+      - "pump"
+      - "rocket"
+      - "🚀"
+      - "up"
+      - "gain"
+      - "accumulate"
+      - "long"
+      - "calls"
+    bearish_keywords:
+      - "dump"
+      - "bearish"
+      - "sell"
+      - "crash"
+      - "down"
+      - "loss"
+      - "exit"
+      - "short"
+      - "puts"
+  
+  # VADER Configuration
+  vader:
+    threshold_positive: 0.05
+    threshold_negative: -0.05
+
+# =================================================================
+# Bot Detection Configuration
+# =================================================================
+bot_detection:
+  algorithm: "heuristic"  # Options: heuristic, openai
+  
+  # Heuristic-based Detection
+  heuristic:
+    follower_threshold: 100
+    following_ratio_threshold: 5.0
+    account_age_threshold_days: 30
+    min_tweets_threshold: 10
+    default_profile_pic_penalty: 0.3
+    no_bio_penalty: 0.2
+  
+  # OpenAI-based Detection
+  openai:
+    model: "gpt-4-turbo"
+    temperature: 0.1
+    max_tokens: 50
+
+# =================================================================
+# Data Collection Configuration
+# =================================================================
+collection:
+  query: "MSTR"
+  max_results: 10
+  schedule:
+    - "Monday"
+    - "Wednesday"
+    - "Friday"
+    - "Sunday"
+  time_window_hours: 72
+
+# =================================================================
+# Dashboard Configuration
+# =================================================================
+dashboard:
+  fear_greed_scale:
+    min: 0
+    max: 100
+  default_days: 90
+  thresholds:
+    extreme_fear: 25
+    fear: 40
+    neutral_low: 40
+    neutral_high: 60
+    greed: 75
+    extreme_greed: 100
+
+# =================================================================
+# API Configuration
+# =================================================================
+api:
+  rate_limit:
+    requests_per_15min: 1
+    requests_per_day: 100
+  retry:
+    max_attempts: 3
+    backoff_seconds: 60

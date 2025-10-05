@@ -76,6 +76,8 @@ class XAPIClient:
             except httpx.HTTPStatusError as e:
                 if e.response.status_code == 429:
                     raise RateLimitError("X API rate limit exceeded")
+                # Print error details for debugging
+                print(f"Error response: {e.response.text}")
                 raise
     
     async def search_by_hashtags(

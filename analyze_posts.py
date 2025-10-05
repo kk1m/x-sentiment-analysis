@@ -9,6 +9,7 @@ from backend.src.models.author import Author
 from backend.src.models.engagement import Engagement
 from backend.src.services.sentiment_service import SentimentService
 from backend.src.services.bot_detector import BotDetector
+from backend.src.config import config
 
 
 async def main():
@@ -35,14 +36,22 @@ async def main():
     sentiment_service = SentimentService()
     bot_detector = BotDetector()
     
+    # Get algorithms from config
+    sentiment_algo = config.sentiment_algorithm
+    bot_algo = config.bot_detection_algorithm
+    
+    print(f"Using sentiment algorithm: {sentiment_algo}")
+    print(f"Using bot detection algorithm: {bot_algo}")
+    print("")
+    
     for i, post in enumerate(posts, 1):
         print(f"[{i}/{len(posts)}] Analyzing post {post.post_id[:10]}...")
         
-        # Sentiment analysis
+        # Sentiment analysis (using config)
         score = await sentiment_service.classify_and_store(
             post_id=post.post_id,
             text=post.text,
-            algorithm="openai-gpt4"
+            algorithm=sentiment_algo
         )
         
         # Bot detection

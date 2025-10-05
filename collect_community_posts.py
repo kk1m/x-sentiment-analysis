@@ -44,7 +44,8 @@ async def collect_community_posts():
         # Query: simplified to just MSTR
         # NOTE: context: operator not available on free tier (400 error)
         # Simplified from "Irresponsibly Long MSTR" to just MSTR for broader results
-        query = 'MSTR -is:retweet lang:en'
+        # Simplest query - just keyword
+        query = 'MSTR'
         
         # Time window: last 72 hours (since last collection)
         # Mon->Wed = 48h, Wed->Fri = 48h, Fri->Sun = 48h, Sun->Mon = 48h
@@ -56,10 +57,11 @@ async def collect_community_posts():
         print(f"   Collecting top 5 posts by engagement...")
         print("")
         
+        # Collect 5 most recent posts (free tier doesn't support start_time)
         response = await client.search_recent(
             query=query,
-            max_results=5,
-            since=since
+            max_results=10,
+            #since=None  # Free tier may not support start_time
         )
         
         posts_data = response.get("data", [])
@@ -105,6 +107,7 @@ async def collect_community_posts():
                         last_updated=datetime.utcnow()
                     )
                     session.add(author)
+                    session.flush()  # Flush to get the author ID without committing
                 else:
                     author.last_updated = datetime.utcnow()
                 
