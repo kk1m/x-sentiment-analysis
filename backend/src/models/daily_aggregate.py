@@ -49,6 +49,12 @@ class DailyAggregate(Base):
     weighted_bearish_score = Column(Float, nullable=False, default=0.0)
     dominant_sentiment = Column(Enum(DominantSentiment), nullable=False)
     
+    # New: Dual Sentiment Scores (0-100 Fear & Greed)
+    overall_sentiment_score = Column(Float, nullable=True)  # All tweets (including bots)
+    human_sentiment_score = Column(Float, nullable=True)  # Only human tweets (bot_score < 0.8)
+    human_tweet_count = Column(Integer, nullable=True)  # Count of human tweets
+    bot_tweet_count = Column(Integer, nullable=True)  # Count of bot tweets (bot_score >= 0.8)
+    
     # Engagement Aggregates
     total_likes = Column(Integer, nullable=False, default=0)
     total_retweets = Column(Integer, nullable=False, default=0)

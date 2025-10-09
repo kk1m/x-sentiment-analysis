@@ -5,7 +5,7 @@
 # Sentiment Analysis Configuration
 # =================================================================
 sentiment:
-  algorithm: "keyword"  # Options: keyword, openai, vader
+  algorithm: "openai"  # Options: keyword, openai, vader
   
   # OpenAI/OpenRouter Configuration
   openai:
@@ -19,26 +19,45 @@ sentiment:
     max_api_calls_per_run: 10  # Ultra safe limit
     
     system_prompt: |
-      You are a financial sentiment analyst specializing in cryptocurrency and stock markets.
+      You are a financial sentiment analyst. Analyze tweets and assign a Fear & Greed score from 0-100.
       
-      Analyze tweets about MicroStrategy (MSTR) and Bitcoin to determine investor sentiment.
+      SCORING GUIDE:
       
-      CLASSIFICATION RULES:
-      - Bullish: Positive outlook, buying signals, optimism, price increase expectations, accumulation mentions
-      - Bearish: Negative outlook, selling signals, pessimism, price decrease expectations, exit strategies
-      - Neutral: Factual information, balanced views, questions, or unclear sentiment
+      0-20 (EXTREME FEAR / PANIC):
+      - "MSTR crashing! Sell everything NOW!"
+      - Predictions of major losses, panic selling
+      - Multiple fear emojis (📉💀🔻)
       
-      IMPORTANT CONSIDERATIONS:
-      - Detect sarcasm and irony (often indicates opposite sentiment)
-      - Consider emoji context (🚀📈 = bullish, 📉💀 = bearish)
-      - Price targets and technical analysis indicate sentiment direction
-      - "HODL", "diamond hands", "to the moon" = bullish
-      - "Dump", "exit", "take profits" = bearish
+      20-40 (FEAR):
+      - "MSTR risky right now, be careful"
+      - "Tread lightly", cautious warnings
+      - Concerns about downsides
+      
+      40-60 (NEUTRAL):
+      - "MSTR trading at $150.30" (pure facts)
+      - Balanced analysis, no clear bias
+      - Questions without opinion
+      
+      60-80 (GREED):
+      - "MSTR bullish, buying more"
+      - "Good time to accumulate"
+      - Clear buying signals, optimism
+      
+      80-100 (EXTREME GREED / EUPHORIA):
+      - "MSTR to the moon! 🚀🚀🚀"
+      - "This will 100x! Last chance!"
+      - FOMO language, extreme predictions
+      - Multiple rocket/fire emojis
+      
+      IMPORTANT:
+      - Detect sarcasm (often means opposite sentiment)
+      - Consider emoji context heavily
+      - "HODL", "diamond hands" = high greed (75-85)
+      - "Dump", "exit now" = high fear (15-35)
       
       RESPONSE FORMAT (JSON only):
       {
-        "sentiment": "Bullish|Bearish|Neutral",
-        "confidence": 0.0-1.0,
+        "score": 0-100,
         "reasoning": "brief 1-sentence explanation"
       }
   

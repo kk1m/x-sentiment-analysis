@@ -31,6 +31,8 @@ class SentimentScore(Base):
     # Sentiment Result
     classification = Column(Enum(SentimentClassification), nullable=False, index=True)
     confidence = Column(Float, nullable=False)  # 0.0 to 1.0
+    score = Column(Float, nullable=True)  # 0-100 Fear & Greed score (new)
+    reasoning = Column(String, nullable=True)  # LLM reasoning (new)
     
     # Metadata
     created_at = Column(DateTime, nullable=False, index=True)

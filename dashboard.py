@@ -191,7 +191,12 @@ def load_data(days=90, algorithm="openai"):
                 'bearish_count': agg.bearish_count,
                 'neutral_count': agg.neutral_count,
                 'weighted_score': agg.weighted_score,
-                'dominant_sentiment': agg.dominant_sentiment.value
+                'dominant_sentiment': agg.dominant_sentiment.value,
+                # NEW: Dual sentiment scores
+                'overall_sentiment_score': agg.overall_sentiment_score,
+                'human_sentiment_score': agg.human_sentiment_score,
+                'human_tweet_count': agg.human_tweet_count,
+                'bot_tweet_count': agg.bot_tweet_count
             })
         
         agg_df = pd.DataFrame(agg_data)
@@ -413,55 +418,96 @@ def main():
         key="trend_view"
     )
     
-    # Group by date and bot status
-    daily_sentiment = df.groupby(['date', 'is_bot'])['sentiment_numeric'].mean().reset_index()
-    overall_daily = df.groupby('date')['sentiment_numeric'].mean().reset_index()
-    
-    # Convert to 0-100 scale for user-friendly display
-    daily_sentiment['fear_greed_score'] = (daily_sentiment['sentiment_numeric'] + 1) * 50
-    overall_daily['fear_greed_score'] = (overall_daily['sentiment_numeric'] + 1) * 50
-    
-    human_data = daily_sentiment[daily_sentiment['is_bot'] == False]
-    bot_data = daily_sentiment[daily_sentiment['is_bot'] == True]
+    # Use aggregated data if available, otherwise calculate from posts
+    if not agg_df.empty and 'overall_sentiment_score' in agg_df.columns:
+        # Use new dual sentiment scores from aggregates
+        agg_df_clean = agg_df.dropna(subset=['overall_sentiment_score', 'human_sentiment_score'])
+    else:
+        # Fallback: calculate from individual posts
+        daily_sentiment = df.groupby(['date', 'is_bot'])['sentiment_numeric'].mean().reset_index()
+        overall_daily = df.groupby('date')['sentiment_numeric'].mean().reset_index()
+        
+        # Convert to 0-100 scale
+        daily_sentiment['fear_greed_score'] = (daily_sentiment['sentiment_numeric'] + 1) * 50
+        overall_daily['fear_greed_score'] = (overall_daily['sentiment_numeric'] + 1) * 50
+        
+        human_data = daily_sentiment[daily_sentiment['is_bot'] == False]
+        bot_data = daily_sentiment[daily_sentiment['is_bot'] == True]
+        agg_df_clean = None
     
     fig = go.Figure()
     
     # Add traces based on view mode (using 0-100 scale)
     if trend_view == "Overall":
-        # Just show overall
-        fig.add_trace(go.Scatter(
-            x=overall_daily['date'],
-            y=overall_daily['fear_greed_score'],
-            mode='lines+markers',
-            name='Overall Sentiment',
-            line=dict(color='#3498db', width=3),
-            marker=dict(size=8),
-            hovertemplate='<b>%{x}</b><br>Score: %{y:.0f}<extra></extra>'
-        ))
+        # Show overall sentiment
+        if agg_df_clean is not None and not agg_df_clean.empty:
+            fig.add_trace(go.Scatter(
+                x=agg_df_clean['date'],
+                y=agg_df_clean['overall_sentiment_score'],
+                mode='lines+markers',
+                name='Overall Sentiment',
+                line=dict(color='#3498db', width=3),
+                marker=dict(size=8),
+                hovertemplate='<b>%{x}</b><br>Score: %{y:.0f}<extra></extra>'
+            ))
+        else:
+            # Fallback to old calculation
+            fig.add_trace(go.Scatter(
+                x=overall_daily['date'],
+                y=overall_daily['fear_greed_score'],
+                mode='lines+markers',
+                name='Overall Sentiment',
+                line=dict(color='#3498db', width=3),
+                marker=dict(size=8),
+                hovertemplate='<b>%{x}</b><br>Score: %{y:.0f}<extra></extra>'
+            ))
         
     elif trend_view == "Bot Breakdown":
-        # Show human and bot separately
-        if not human_data.empty:
+        # Show Overall vs Human (the key comparison!)
+        if agg_df_clean is not None and not agg_df_clean.empty:
+            # NEW: Use dual sentiment scores
             fig.add_trace(go.Scatter(
-                x=human_data['date'],
-                y=human_data['fear_greed_score'],
+                x=agg_df_clean['date'],
+                y=agg_df_clean['overall_sentiment_score'],
                 mode='lines+markers',
-                name='👤 Human Sentiment',
+                name='📊 Overall (with bots)',
+                line=dict(color='#3498db', width=2.5),
+                marker=dict(size=7),
+                hovertemplate='<b>%{x}</b><br>Overall: %{y:.0f}<extra></extra>'
+            ))
+            
+            fig.add_trace(go.Scatter(
+                x=agg_df_clean['date'],
+                y=agg_df_clean['human_sentiment_score'],
+                mode='lines+markers',
+                name='👤 Human Only',
                 line=dict(color='#2ecc71', width=2.5),
                 marker=dict(size=7),
                 hovertemplate='<b>%{x}</b><br>Human: %{y:.0f}<extra></extra>'
             ))
-        
-        if not bot_data.empty:
-            fig.add_trace(go.Scatter(
-                x=bot_data['date'],
-                y=bot_data['fear_greed_score'],
-                mode='lines+markers',
-                name='🤖 Bot Sentiment',
-                line=dict(color='#e74c3c', width=2.5, dash='dash'),
-                marker=dict(size=7),
-                hovertemplate='<b>%{x}</b><br>Bot: %{y:.0f}<extra></extra>'
-            ))
+        else:
+            # Fallback to old calculation
+            if not human_data.empty:
+                fig.add_trace(go.Scatter(
+                    x=human_data['date'],
+                    y=human_data['fear_greed_score'],
+                    mode='lines+markers',
+                    name='👤 Human Sentiment',
+                    line=dict(color='#2ecc71', width=2.5),
+                    marker=dict(size=7),
+                    hovertemplate='<b>%{x}</b><br>Human: %{y:.0f}<extra></extra>'
+                ))
+            
+            if not bot_data.empty:
+                fig.add_trace(go.Scatter(
+                    x=bot_data['date'],
+                    y=bot_data['fear_greed_score'],
+                    mode='lines+markers',
+                    name='🤖 Bot Sentiment',
+                    line=dict(color='#e74c3c', width=2.5, dash='dash'),
+                    marker=dict(size=7),
+                    hovertemplate='<b>%{x}</b><br>Bot: %{y:.0f}<extra></extra>'
+                ))
     
     else:  # Compare All
         # Show all three lines
@@ -534,7 +580,17 @@ def main():
     if trend_view == "Compare All":
         st.info("💡 **Insight:** Bot posts (red dashed line) consistently push toward extreme greed (100) and inflate the overall index (blue line) above genuine human sentiment (green line). This shows how bot manipulation artificially inflates market sentiment.")
     elif trend_view == "Bot Breakdown":
-        st.info("💡 **Insight:** Compare human vs bot sentiment patterns. Bots typically show more extreme scores (closer to 0 or 100) while humans show more moderate, varied sentiment.")
+        if agg_df_clean is not None and not agg_df_clean.empty:
+            # Calculate average gap
+            avg_gap = (agg_df_clean['overall_sentiment_score'] - agg_df_clean['human_sentiment_score']).mean()
+            if avg_gap > 5:
+                st.warning(f"⚠️ **Bot Manipulation Detected:** Overall sentiment is **{avg_gap:.1f} points higher** than human sentiment on average. Bots are inflating the market sentiment!")
+            elif avg_gap < -5:
+                st.warning(f"⚠️ **Bot Manipulation Detected:** Overall sentiment is **{abs(avg_gap):.1f} points lower** than human sentiment on average. Bots are suppressing the market sentiment!")
+            else:
+                st.success("✅ **Organic Sentiment:** Overall and human sentiment are aligned. Minimal bot manipulation detected.")
+        else:
+            st.info("💡 **Insight:** Compare overall vs human sentiment. The gap shows bot manipulation impact.")
     
     st.markdown("---")
     

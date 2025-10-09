@@ -119,6 +119,7 @@ class DailyAggregator:
                 post_data_list.append({
                     "sentiment": sentiment_score.classification.value,
                     "confidence": sentiment_score.confidence,
+                    "score": sentiment_score.score if sentiment_score.score else 50,  # New: 0-100 score
                     "engagement": {
                         "like_count": engagement.like_count,
                         "retweet_count": engagement.retweet_count,
@@ -137,6 +138,39 @@ class DailyAggregator:
             
             # Calculate weighted sentiment
             weighted_result = self.weighting_calculator.calculate_weighted_sentiment(post_data_list)
+            
+            # NEW: Calculate dual sentiment scores (0-100 Fear & Greed)
+            BOT_THRESHOLD = 0.8
+            
+            # Overall score (all tweets, weighted by engagement)
+            overall_numerator = 0
+            overall_denominator = 0
+            
+            # Human score (bot_score < 0.8, weighted by engagement)
+            human_numerator = 0
+            human_denominator = 0
+            human_count = 0
+            bot_count = 0
+            
+            for post_data in post_data_list:
+                score = post_data["score"]
+                engagement = post_data["engagement"]["like_count"] + post_data["engagement"]["retweet_count"]
+                bot_score = post_data["bot_score"]
+                
+                # Overall (all tweets)
+                overall_numerator += score * engagement
+                overall_denominator += engagement
+                
+                # Human only (bot_score < 0.8)
+                if bot_score < BOT_THRESHOLD:
+                    human_numerator += score * engagement
+                    human_denominator += engagement
+                    human_count += 1
+                else:
+                    bot_count += 1
+            
+            overall_sentiment_score = overall_numerator / overall_denominator if overall_denominator > 0 else 50
+            human_sentiment_score = human_numerator / human_denominator if human_denominator > 0 else 50
             
             # Map dominant sentiment to enum
             dominant_map = {
@@ -175,7 +209,12 @@ class DailyAggregator:
                 avg_engagement_per_post=(total_likes + total_retweets) / total_posts if total_posts > 0 else 0,
                 bot_detection_rate=(bot_flagged / total_posts * 100) if total_posts > 0 else 0,
                 high_confidence_sentiment_pct=(high_confidence / total_posts * 100) if total_posts > 0 else 0,
-                weighting_config_version="v1.0"
+                weighting_config_version="v1.0",
+                # NEW: Dual sentiment scores
+                overall_sentiment_score=overall_sentiment_score,
+                human_sentiment_score=human_sentiment_score,
+                human_tweet_count=human_count,
+                bot_tweet_count=bot_count
             )
             
             session.add(aggregate)

@@ -86,7 +86,12 @@ async def main():
                 }
             )
             
-            print(f"   Sentiment: {score.classification.value} ({score.confidence:.2f})")
+            # Display sentiment with new 0-100 score
+            if score.score:
+                score_label = "Fear" if score.score < 40 else "Neutral" if score.score < 60 else "Greed"
+                print(f"   Sentiment: {score.score:.0f}/100 ({score_label}) - {score.classification.value}")
+            else:
+                print(f"   Sentiment: {score.classification.value} ({score.confidence:.2f})")
             print(f"   Bot score: {bot_score:.2f}")
         
         print("")

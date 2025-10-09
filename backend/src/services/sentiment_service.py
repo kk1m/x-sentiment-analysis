@@ -15,14 +15,16 @@ class SentimentService:
     
     def __init__(self):
         self.analyzers = {
-            "openai-gpt4": OpenAIAnalyzer(),
+            "openai": OpenAIAnalyzer(),
+            "openai-gpt4": OpenAIAnalyzer(),  # Backward compatibility
             "vader": VADERAnalyzer()
         }
     
     async def classify_sentiment(
         self,
         text: str,
-        algorithm: str = "openai-gpt4"
+        algorithm: str = "openai-gpt4",
+        post_id: str = None
     ) -> Dict:
         """
         Classify sentiment of text using specified algorithm
@@ -30,6 +32,7 @@ class SentimentService:
         Args:
             text: Text to analyze
             algorithm: Algorithm to use
+            post_id: Optional post ID for logging
         
         Returns:
             Dict with classification, confidence, algorithm info
@@ -40,12 +43,12 @@ class SentimentService:
             analyzer = self.analyzers["vader"]
         
         try:
-            result = await analyzer.analyze(text)
+            result = await analyzer.analyze(text, post_id=post_id)
             return result
         except Exception as e:
             # Fallback to VADER on error
             if algorithm != "vader":
-                return await self.analyzers["vader"].analyze(text)
+                return await self.analyzers["vader"].analyze(text, post_id=post_id)
             raise
     
     async def classify_and_store(
@@ -65,7 +68,7 @@ class SentimentService:
         Returns:
             SentimentScore object
         """
-        result = await self.classify_sentiment(text, algorithm)
+        result = await self.classify_sentiment(text, algorithm, post_id=post_id)
         
         # Map string to enum
         classification_map = {
@@ -82,6 +85,8 @@ class SentimentService:
                 algorithm_version=result["algorithm_version"],
                 classification=classification_map[result["classification"]],
                 confidence=result["confidence"],
+                score=result.get("score"),  # New: 0-100 score
+                reasoning=result.get("reasoning"),  # New: LLM reasoning
                 created_at=datetime.utcnow()
             )
             session.add(score)
