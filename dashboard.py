@@ -694,8 +694,9 @@ def main():
     for idx, row in top_posts.iterrows():
         bot_badge = "🤖 BOT" if row['bot_score'] > 0.7 else "👤 HUMAN"
         sentiment_emoji = {"Bullish": "🟢", "Bearish": "🔴", "Neutral": "🟡"}.get(row['sentiment'], "⚪")
+        post_date = pd.to_datetime(row['created_at']).strftime('%b %d, %H:%M')
         
-        with st.expander(f"{sentiment_emoji} @{row['author']} | {bot_badge} | ❤️ {row['likes']} 🔁 {row['retweets']}"):
+        with st.expander(f"{sentiment_emoji} @{row['author']} | {post_date} | {bot_badge} | ❤️ {row['likes']} 🔁 {row['retweets']}"):
             st.markdown(f"**{row['text']}**")
             st.caption(f"Sentiment: {row['sentiment']} ({row['confidence']:.2f}) | Bot Score: {row['bot_score']:.2f}")
     

@@ -50,6 +50,7 @@ class XAPIClient:
         params = {
             "query": query,
             "max_results": min(max_results, 100),
+            "sort_order": "relevancy",  # Sort by engagement/relevance instead of recency
             "tweet.fields": "created_at,author_id,public_metrics,lang",
             "expansions": "author_id",
             "user.fields": "username,name,verified,public_metrics,created_at,description"
