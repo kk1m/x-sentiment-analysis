@@ -336,9 +336,11 @@ def main():
         st.plotly_chart(fig_gauge, use_container_width=True)
         
         # Date and description
+        total_unique_posts = df['post_id'].nunique()
+        today_unique_posts = today_df['post_id'].nunique()
         st.markdown(f"""
         <div style='text-align: center; margin: 1rem 0;'>
-            <p style='font-size: 1.1rem; color: #a0a0a0;'>📅 {today} | 📊 Today's Sample: {len(today_df)} posts | Total Dataset: {len(df)} posts</p>
+            <p style='font-size: 1.1rem; color: #a0a0a0;'>📅 {today} | 📊 Today's Sample: {today_unique_posts} posts | Total Dataset: {total_unique_posts} posts</p>
             <p style='font-size: 0.95rem; color: #808080;'>
                 0 = Extreme Fear | 25 = Fear | 50 = Neutral | 75 = Greed | 100 = Extreme Greed
             </p>
@@ -684,8 +686,10 @@ def main():
     # Top Posts (keep this - useful context)
     st.header("🔥 Top Posts Driving Sentiment")
     
+    # Remove duplicates by keeping only one row per post_id (the one for current algorithm)
     df['total_engagement'] = df['likes'] + df['retweets'] + df['replies']
-    top_posts = df.nlargest(10, 'total_engagement')
+    df_unique = df.drop_duplicates(subset=['post_id'], keep='first')
+    top_posts = df_unique.nlargest(10, 'total_engagement')
     
     for idx, row in top_posts.iterrows():
         bot_badge = "🤖 BOT" if row['bot_score'] > 0.7 else "👤 HUMAN"
