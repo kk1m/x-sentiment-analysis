@@ -338,7 +338,7 @@ def main():
         # Date and description
         st.markdown(f"""
         <div style='text-align: center; margin: 1rem 0;'>
-            <p style='font-size: 1.1rem; color: #a0a0a0;'>📅 {today} | 📊 Based on {len(today_df)} posts</p>
+            <p style='font-size: 1.1rem; color: #a0a0a0;'>📅 {today} | 📊 Sample: {len(today_df)} posts</p>
             <p style='font-size: 0.95rem; color: #808080;'>
                 0 = Extreme Fear | 25 = Fear | 50 = Neutral | 75 = Greed | 100 = Extreme Greed
             </p>
@@ -543,22 +543,35 @@ def main():
             hovertemplate='<b>%{x}</b><br>Overall: %{y:.0f}<extra></extra>'
         ))
     
+    # Add gradient background shapes
+    fig.add_shape(type="rect", x0=0, x1=1, y0=0, y1=20, xref="paper", yref="y",
+                  fillcolor="rgba(255, 0, 0, 0.15)", layer="below", line_width=0)  # Extreme Fear (red)
+    fig.add_shape(type="rect", x0=0, x1=1, y0=20, y1=40, xref="paper", yref="y",
+                  fillcolor="rgba(255, 100, 0, 0.1)", layer="below", line_width=0)  # Fear (orange)
+    fig.add_shape(type="rect", x0=0, x1=1, y0=40, y1=60, xref="paper", yref="y",
+                  fillcolor="rgba(255, 255, 0, 0.05)", layer="below", line_width=0)  # Neutral (yellow)
+    fig.add_shape(type="rect", x0=0, x1=1, y0=60, y1=80, xref="paper", yref="y",
+                  fillcolor="rgba(150, 255, 0, 0.1)", layer="below", line_width=0)  # Greed (light green)
+    fig.add_shape(type="rect", x0=0, x1=1, y0=80, y1=100, xref="paper", yref="y",
+                  fillcolor="rgba(0, 255, 0, 0.15)", layer="below", line_width=0)  # Extreme Greed (green)
+    
     fig.update_layout(
         title=dict(
             text="Sentiment Score Over Time",
             font=dict(size=24, color='#e0e0e0', family='Arial Black')
         ),
         xaxis_title="Date",
-        yaxis_title="Fear & Greed Index (0 = Extreme Fear, 100 = Extreme Greed)",
+        yaxis_title="Fear & Greed Index",
         hovermode='x unified',
         yaxis=dict(
             range=[0, 100],
             gridcolor='rgba(255, 255, 255, 0.1)',
-            tickvals=[0, 25, 40, 50, 60, 75, 100],
-            ticktext=['0<br>Extreme<br>Fear', '25<br>Fear', '40', '50<br>Neutral', '60', '75<br>Greed', '100<br>Extreme<br>Greed']
+            tickvals=[0, 20, 40, 50, 60, 80, 100],
+            ticktext=['Extreme Fear', 'Fear', 'Neutral', '', 'Greed', 'Extreme Greed', '']
         ),
         xaxis=dict(
-            gridcolor='rgba(255, 255, 255, 0.1)'
+            gridcolor='rgba(255, 255, 255, 0.1)',
+            tickformat='%b %d'  # Show only date (e.g., "Oct 05")
         ),
         legend=dict(
             orientation="h",
