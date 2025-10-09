@@ -338,25 +338,12 @@ def main():
         # Date and description
         st.markdown(f"""
         <div style='text-align: center; margin: 1rem 0;'>
-            <p style='font-size: 1.1rem; color: #a0a0a0;'>📅 {today} | 📊 Sample: {len(today_df)} posts</p>
+            <p style='font-size: 1.1rem; color: #a0a0a0;'>📅 {today} | 📊 Today's Sample: {len(today_df)} posts | Total Dataset: {len(df)} posts</p>
             <p style='font-size: 0.95rem; color: #808080;'>
                 0 = Extreme Fear | 25 = Fear | 50 = Neutral | 75 = Greed | 100 = Extreme Greed
             </p>
         </div>
         """, unsafe_allow_html=True)
-        
-        # Stats
-        col1, col2, col3 = st.columns(3)
-        bullish_today = (today_df['sentiment'] == 'Bullish').sum()
-        bearish_today = (today_df['sentiment'] == 'Bearish').sum()
-        neutral_today = (today_df['sentiment'] == 'Neutral').sum()
-        
-        with col1:
-            st.metric("🟢 Bullish Posts", f"{bullish_today}/{len(today_df)}", f"{bullish_today/len(today_df)*100:.0f}%")
-        with col2:
-            st.metric("🔴 Bearish Posts", f"{bearish_today}/{len(today_df)}", f"{bearish_today/len(today_df)*100:.0f}%")
-        with col3:
-            st.metric("🟡 Neutral Posts", f"{neutral_today}/{len(today_df)}", f"{neutral_today/len(today_df)*100:.0f}%")
     
     else:  # Bot Breakdown
         # Show human vs bot with visual cards (0-100 scale)
