@@ -5,7 +5,7 @@ Orchestrates daily data collection from X API
 import uuid
 from typing import List
 from datetime import datetime, timedelta
-from backend.src.services.post_collector import PostCollector
+from backend.src.services.tweet_collector import TweetCollector
 from backend.src.storage.database import get_session
 from backend.src.models.batch_job import BatchJob, JobStatus
 
@@ -43,11 +43,10 @@ async def run_daily_batch(
     
     try:
         # Collect posts
-        collector = PostCollector()
+        collector = TweetCollector()
         since = datetime.utcnow() - timedelta(hours=lookback_hours)
         
-        posts_stored = await collector.collect_and_store_daily_posts(
-            hashtags=hashtags,
+        posts_stored = await collector.collect_and_store_posts(
             since=since,
             batch_job_id=batch_job_id
         )

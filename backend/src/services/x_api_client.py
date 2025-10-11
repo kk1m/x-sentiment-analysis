@@ -133,24 +133,3 @@ class XAPIClient:
             Dict with 'data' (tweets) and 'includes' (users)
         """
         return await self.search_recent(query, max_results, since)
-    
-    async def search_by_hashtags(
-        self,
-        hashtags: List[str],
-        max_results: int = 10,
-        since: Optional[datetime] = None
-    ) -> Dict:
-        """
-        Search tweets by multiple hashtags (simple OR query)
-        
-        Args:
-            hashtags: List of hashtags (e.g., ["#Bitcoin", "#MSTR"])
-            max_results: Max tweets to return
-            since: Only tweets after this datetime
-        
-        Returns:
-            Dict with 'data' (tweets) and 'includes' (users)
-        """
-        # Simple OR query for hashtags
-        query = " OR ".join(hashtags)
-        return await self.search_recent(query, max_results, since)
