@@ -41,6 +41,18 @@ class DailyAggregator:
         session = get_session()
         
         try:
+            # Check if aggregate already exists
+            existing_aggregate = session.query(DailyAggregate).filter(
+                DailyAggregate.date == target_date,
+                DailyAggregate.topic == Topic[topic.upper()],
+                DailyAggregate.algorithm_id == algorithm
+            ).first()
+            
+            if existing_aggregate:
+                print(f"⚠️  Aggregate already exists for {target_date} ({topic}, {algorithm})")
+                print(f"   Delete it first or use a different algorithm")
+                return existing_aggregate
+            
             # Query posts for this date
             start_datetime = datetime.combine(target_date, datetime.min.time())
             end_datetime = datetime.combine(target_date, datetime.max.time())

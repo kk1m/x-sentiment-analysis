@@ -2,3 +2,7 @@ date,day_of_week,posts_collected,cumulative_total
 2025-10-05,Sunday,10,10
 2025-10-05,Sunday,10,20
 2025-10-09,Thursday,10,30
+2025-10-09,Thursday,10,40
+2025-10-11 16:49:14,2025-10-11,Saturday,rate_limit,0,X API rate limit exceeded
+2025-10-11 16:50:36,2025-10-11,Saturday,rate_limit,0,X API rate limit exceeded
+2025-10-11 17:06:51,2025-10-11,Saturday,success,100,

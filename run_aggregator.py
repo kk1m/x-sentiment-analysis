@@ -25,7 +25,7 @@ async def main():
     aggregate = await aggregator.aggregate_daily_sentiment(
         target_date=target_date,
         topic="Bitcoin",
-        algorithm="openai-gpt4"
+        algorithm="openai"
     )
     
     if aggregate:

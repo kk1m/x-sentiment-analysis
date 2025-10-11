@@ -176,9 +176,10 @@ def load_data(days=90, algorithm="openai"):
         
         df = pd.DataFrame(data)
         
-        # Query daily aggregates
+        # Query daily aggregates (filter by algorithm)
         aggregates = session.query(DailyAggregate).filter(
-            DailyAggregate.date >= start_date.date()
+            DailyAggregate.date >= start_date.date(),
+            DailyAggregate.algorithm_id == algorithm
         ).all()
         
         agg_data = []
@@ -275,16 +276,33 @@ def main():
     st.markdown("<br>", unsafe_allow_html=True)
     st.header("🎯 Today's Sentiment")
     
-    # Calculate today's sentiment (overall, human, bot)
-    # Convert from -1 to +1 scale to 0-100 Fear & Greed scale
-    today_overall_raw = today_df['sentiment_numeric'].mean()
-    today_human_raw = today_df[today_df['is_bot'] == False]['sentiment_numeric'].mean() if not today_df[today_df['is_bot'] == False].empty else 0
-    today_bot_raw = today_df[today_df['is_bot'] == True]['sentiment_numeric'].mean() if not today_df[today_df['is_bot'] == True].empty else 0
-    
-    # Convert to 0-100 scale (0 = Extreme Fear, 50 = Neutral, 100 = Extreme Greed)
-    today_overall = (today_overall_raw + 1) * 50
-    today_human = (today_human_raw + 1) * 50
-    today_bot = (today_bot_raw + 1) * 50
+    # Get today's aggregate scores (from daily_aggregates table)
+    # This matches what's shown in the plot
+    if not agg_df.empty:
+        today_agg = agg_df[agg_df['date'] == today]
+        if not today_agg.empty:
+            # Use the weighted aggregate scores (0-100 scale)
+            today_overall = today_agg['overall_sentiment_score'].iloc[0]
+            today_human = today_agg['human_sentiment_score'].iloc[0]
+            # Calculate bot score from individual posts as fallback
+            today_bot_raw = today_df[today_df['is_bot'] == True]['sentiment_numeric'].mean() if not today_df[today_df['is_bot'] == True].empty else 0
+            today_bot = (today_bot_raw + 1) * 50
+        else:
+            # Fallback: calculate from individual posts
+            today_overall_raw = today_df['sentiment_numeric'].mean()
+            today_human_raw = today_df[today_df['is_bot'] == False]['sentiment_numeric'].mean() if not today_df[today_df['is_bot'] == False].empty else 0
+            today_bot_raw = today_df[today_df['is_bot'] == True]['sentiment_numeric'].mean() if not today_df[today_df['is_bot'] == True].empty else 0
+            today_overall = (today_overall_raw + 1) * 50
+            today_human = (today_human_raw + 1) * 50
+            today_bot = (today_bot_raw + 1) * 50
+    else:
+        # Fallback: calculate from individual posts
+        today_overall_raw = today_df['sentiment_numeric'].mean()
+        today_human_raw = today_df[today_df['is_bot'] == False]['sentiment_numeric'].mean() if not today_df[today_df['is_bot'] == False].empty else 0
+        today_bot_raw = today_df[today_df['is_bot'] == True]['sentiment_numeric'].mean() if not today_df[today_df['is_bot'] == True].empty else 0
+        today_overall = (today_overall_raw + 1) * 50
+        today_human = (today_human_raw + 1) * 50
+        today_bot = (today_bot_raw + 1) * 50
     
     # View mode selector
     view_mode = st.radio(

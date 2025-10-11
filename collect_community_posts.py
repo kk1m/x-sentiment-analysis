@@ -41,11 +41,10 @@ async def collect_community_posts():
     try:
         client = XAPIClient()
         
-        # Query: simplified to just MSTR
-        # NOTE: context: operator not available on free tier (400 error)
-        # Simplified from "Irresponsibly Long MSTR" to just MSTR for broader results
-        # Simplest query - just keyword
-        query = 'MSTR'
+        # Enhanced query with context words and spam filters
+        # Requires MSTR + relevant context to filter out hashtag spam
+        # Excludes common spam patterns
+        query = '''(MSTR OR MicroStrategy) (Bitcoin OR BTC OR crypto OR sats OR stock OR shares OR buy OR sell OR strategy OR treasury OR holdings OR Saylor OR Michael OR bullish OR bearish OR moon OR dump OR price OR rally OR crash OR pump OR NAV OR premium OR discount OR volatility OR leverage OR investment OR portfolio OR earnings OR revenue OR accumulation OR buying OR selling) -is:retweet -"earned" -"follow me" -"simulation" lang:en'''
         
         # Time window: last 72 hours (since last collection)
         # Mon->Wed = 48h, Wed->Fri = 48h, Fri->Sun = 48h, Sun->Mon = 48h

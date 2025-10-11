@@ -45,7 +45,8 @@ class PostCollector:
         self,
         hashtags: List[str],
         since: datetime,
-        batch_job_id: str = None
+        batch_job_id: str = None,
+        max_results: int = 10
     ) -> int:
         """
         Collect posts and store them in database
@@ -54,6 +55,7 @@ class PostCollector:
             hashtags: List of hashtags to search
             since: Collect posts after this datetime
             batch_job_id: Optional batch job ID for tracking
+            max_results: Maximum number of tweets to collect (default 10)
         
         Returns:
             Number of posts stored
@@ -61,7 +63,7 @@ class PostCollector:
         # Collect posts from X API
         response = await self.x_client.search_by_hashtags(
             hashtags=hashtags,
-            max_results=100,
+            max_results=max_results,
             since=since
         )
         
@@ -104,11 +106,17 @@ class PostCollector:
                         last_updated=datetime.utcnow()
                     )
                     session.add(author)
+                    session.flush()  # Flush to get author ID without committing
                 else:
                     # Update author metrics
                     author.followers_count = user_data["public_metrics"]["followers_count"]
                     author.following_count = user_data["public_metrics"]["following_count"]
                     author.last_updated = datetime.utcnow()
+                
+                # Check if post already exists (skip duplicates)
+                existing_post = session.query(Post).filter_by(post_id=post_data["id"]).first()
+                if existing_post:
+                    continue
                 
                 # Create post
                 post = Post(
