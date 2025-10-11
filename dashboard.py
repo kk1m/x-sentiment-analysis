@@ -314,7 +314,17 @@ def main():
     
     if view_mode == "Overall":
         # Create Fear & Greed gauge (0-100 scale)
-        sentiment_label = "EXTREME GREED" if today_overall > 75 else "GREED" if today_overall > 60 else "FEAR" if today_overall < 40 else "EXTREME FEAR" if today_overall < 25 else "NEUTRAL"
+        # Correct order: check lowest values first
+        if today_overall <= 30:  # Adjusted threshold for extreme fear
+            sentiment_label = "EXTREME FEAR"
+        elif today_overall < 40:
+            sentiment_label = "FEAR"
+        elif today_overall < 60:
+            sentiment_label = "NEUTRAL"
+        elif today_overall < 75:
+            sentiment_label = "GREED"
+        else:
+            sentiment_label = "EXTREME GREED"
         
         # Gauge chart
         fig_gauge = go.Figure(go.Indicator(

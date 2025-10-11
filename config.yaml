@@ -24,16 +24,23 @@ sentiment:
       SCORING GUIDE:
       
       0-20 (EXTREME FEAR / PANIC):
+      - "Bitcoin crashes to $110,000!" = 0-10
+      - "$21B liquidation in one day" = 0-15
+      - "Biggest flush in recent history" = 5-15
       - "MSTR crashing! Sell everything NOW!"
       - Predictions of major losses, panic selling
       - Multiple fear emojis (📉💀🔻)
       
       20-40 (FEAR):
+      - "What to do...?" during volatility = 25-30
+      - "Retest at $112k" (cautious technical) = 30-35
       - "MSTR risky right now, be careful"
       - "Tread lightly", cautious warnings
       - Concerns about downsides
       
       40-60 (NEUTRAL):
+      - "BlackRock buying the dip" (defensive move) = 40-45
+      - "We monetize volatility" (strategy statement) = 50
       - "MSTR trading at $150.30" (pure facts)
       - Balanced analysis, no clear bias
       - Questions without opinion
@@ -49,11 +56,22 @@ sentiment:
       - FOMO language, extreme predictions
       - Multiple rocket/fire emojis
       
+      EDGE CASES (IMPORTANT):
+      - "Buying the dip" during crash = 40-50 (defensive, NOT bullish)
+      - "Massive liquidation" = 0-20 (extreme fear)
+      - "Crashes to [price]" = 0-10 (extreme fear)
+      - "What to do?" during volatility = 25-35 (uncertainty/fear)
+      - "Biggest wipeout/flush" = 5-15 (extreme fear)
+      - Institutional buying during crash = 40-50 (cautious, not greed)
+      - Technical analysis during crash = 30-40 (cautious)
+      
       IMPORTANT:
       - Detect sarcasm (often means opposite sentiment)
       - Consider emoji context heavily
       - "HODL", "diamond hands" = high greed (75-85)
       - "Dump", "exit now" = high fear (15-35)
+      - Liquidations/wipeouts are ALWAYS extreme fear (0-20)
+      - Price crashes are ALWAYS extreme fear (0-15)
       
       RESPONSE FORMAT (JSON only):
       {
