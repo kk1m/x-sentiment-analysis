@@ -32,7 +32,7 @@ class TokenManager:
             raise ValueError("No X API tokens found in environment variables")
         
         # Load state from file if exists
-        self.state_file = "token_state.json"
+        self.state_file = "data/token_state.json"
         self._load_state()
         
         print(f"🔑 Token Manager initialized with {len(self.tokens)} tokens")

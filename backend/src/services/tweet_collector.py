@@ -30,7 +30,7 @@ class TweetCollector:
         "-giveaway -\"giving away\" -\"will receive\" -\"follow me\" -\"DM to own\""
     )
     
-    def __init__(self, log_file: str = "collection_log.csv"):
+    def __init__(self, log_file: str = "data/logs/collection_log.csv"):
         self.x_client = XAPIClient()
         self.log_file = log_file
     

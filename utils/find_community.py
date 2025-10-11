@@ -3,7 +3,7 @@ Find Community Script
 Searches for "Irresponsibly Long $MSTR" community and saves the ID
 
 NOTE: This script is OPTIONAL - we already have the hardcoded community ID.
-Community ID: 1761182781692850326 (already in community_config.json)
+Community ID: 1761182781692850326 (already in data/community_config.json)
 
 Use this script only if:
 - You want to find other communities
@@ -82,10 +82,10 @@ async def find_community():
                                 "found_at": datetime.now().isoformat()
                             }
                             
-                            with open("community_config.json", "w") as f:
+                            with open("data/community_config.json", "w") as f:
                                 json.dump(config, f, indent=2)
                             
-                            print("✅ Community ID saved to community_config.json")
+                            print("✅ Community ID saved to data/community_config.json")
                             print(f"   Community: {community_name}")
                             print(f"   ID: {community_id}")
                             print("")

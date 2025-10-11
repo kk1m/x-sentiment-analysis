@@ -22,12 +22,12 @@ async def collect_community_posts():
     print("")
     
     # Load community ID
-    if not os.path.exists("community_config.json"):
-        print("❌ Error: community_config.json not found")
+    if not os.path.exists("data/community_config.json"):
+        print("❌ Error: data/community_config.json not found")
         print("   Run: python find_community.py first")
         return
     
-    with open("community_config.json", "r") as f:
+    with open("data/community_config.json", "r") as f:
         config = json.load(f)
     
     community_id = config["community_id"]
@@ -171,7 +171,7 @@ async def collect_community_posts():
 
 def log_collection(posts_count):
     """Log this collection to CSV"""
-    log_file = "collection_log.csv"
+    log_file = "data/logs/collection_log.csv"
     
     # Create file with headers if doesn't exist
     if not os.path.exists(log_file):
@@ -201,11 +201,11 @@ def log_collection(posts_count):
 
 def show_quota_status():
     """Show current quota usage"""
-    if not os.path.exists("collection_log.csv"):
+    if not os.path.exists("data/logs/collection_log.csv"):
         print("💰 Quota: 5 tweets used, ~95 remaining")
         return
     
-    with open("collection_log.csv", "r") as f:
+    with open("data/logs/collection_log.csv", "r") as f:
         reader = csv.DictReader(f)
         rows = list(reader)
         if rows:

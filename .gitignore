@@ -57,3 +57,5 @@ Thumbs.db
 
 # Project Specific
 sentiment_analysis.db
+data/token_state.json
+data/logs/*.csv
