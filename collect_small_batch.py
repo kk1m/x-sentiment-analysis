@@ -39,18 +39,17 @@ async def main():
     print("   (Free tier: collecting 10 tweets)")
     print("")
     
-    # Build custom query with spam filters
+    # Build custom query with spam filters (free tier compatible)
     hashtag = "#MSTR"
     
-    # Context keywords to ensure tweet is actually about MSTR/Bitcoin/crypto
-    context_keywords = "(STRC OR STRK OR MicroStrategy OR Saylor OR Bitcoin OR BTC OR crypto OR cryptocurrency OR blockchain OR price OR market OR trading OR investment OR bullish OR bearish OR buy OR sell OR hodl OR rally OR dump OR pump OR crash OR moon OR dip OR ATH OR halving OR mining OR wallet OR exchange OR volatility OR adoption OR institutional OR treasury OR strategy OR holdings OR accumulation OR correlation OR technical OR fundamental OR analysis OR sentiment OR trend OR breakout OR support OR resistance OR stock OR shares OR equity OR nasdaq)"
+    # Context keywords - shortened to fit 512 char limit
+    # Focus on most important MSTR/crypto terms
+    context_keywords = "(MicroStrategy OR Saylor OR Bitcoin OR BTC OR crypto OR price OR market OR bullish OR bearish OR buy OR sell OR hodl OR rally OR dump OR crash OR moon OR stock OR shares)"
     
-    # Quality filters
+    # Quality filters (free tier compatible - no min_retweets/min_faves)
     filters = [
         "-is:retweet",           # No retweets
         "-is:reply",             # No replies (focus on original thoughts)
-        "min_retweets:1",        # At least 1 retweet (some engagement)
-        "min_faves:2",           # At least 2 likes (filters spam)
         "lang:en"                # English only
     ]
     

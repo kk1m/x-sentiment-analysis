@@ -5,8 +5,8 @@
     "last_request_date": "2025-10-11"
   },
   "2": {
-    "rate_limited_until": null,
-    "requests_today": 2,
+    "rate_limited_until": "2025-10-11T18:38:52.574978",
+    "requests_today": 4,
     "last_request_date": "2025-10-11"
   }
 }
